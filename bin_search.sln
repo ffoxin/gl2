@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bin_search", "bin_search\bin_search.vcxproj", "{AB18DB5B-79CE-48F3-BED9-C27A479B9580}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gl2", "gl2\gl2.vcxproj", "{97300175-8F4B-4EB3-80E0-77DC58675811}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nehe5", "nehe5\nehe5.vcxproj", "{340E261A-E23E-4B52-BD50-F82B0204DC65}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB18DB5B-79CE-48F3-BED9-C27A479B9580}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AB18DB5B-79CE-48F3-BED9-C27A479B9580}.Debug|Win32.Build.0 = Debug|Win32
+		{AB18DB5B-79CE-48F3-BED9-C27A479B9580}.Release|Win32.ActiveCfg = Release|Win32
+		{AB18DB5B-79CE-48F3-BED9-C27A479B9580}.Release|Win32.Build.0 = Release|Win32
+		{97300175-8F4B-4EB3-80E0-77DC58675811}.Debug|Win32.ActiveCfg = Debug|Win32
+		{97300175-8F4B-4EB3-80E0-77DC58675811}.Debug|Win32.Build.0 = Debug|Win32
+		{97300175-8F4B-4EB3-80E0-77DC58675811}.Release|Win32.ActiveCfg = Release|Win32
+		{97300175-8F4B-4EB3-80E0-77DC58675811}.Release|Win32.Build.0 = Release|Win32
+		{340E261A-E23E-4B52-BD50-F82B0204DC65}.Debug|Win32.ActiveCfg = Debug|Win32
+		{340E261A-E23E-4B52-BD50-F82B0204DC65}.Debug|Win32.Build.0 = Debug|Win32
+		{340E261A-E23E-4B52-BD50-F82B0204DC65}.Release|Win32.ActiveCfg = Release|Win32
+		{340E261A-E23E-4B52-BD50-F82B0204DC65}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
