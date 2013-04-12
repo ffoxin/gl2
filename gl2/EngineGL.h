@@ -8,7 +8,9 @@
 class EngineGL
 {
 public:
-	EngineGL( const TCHAR * caption, int bits, bool fullscreen, GLsizei width, GLsizei height );
+	typedef void (* DrawFunc_t)();
+
+	EngineGL( const TCHAR * caption, DrawFunc_t drawFunction, int bits, bool fullscreen, GLsizei width, GLsizei height );
 	~EngineGL();
 
 	GLvoid SetWindowSize( GLsizei width, GLsizei height );
@@ -21,9 +23,9 @@ public:
 	GLvoid PostDrawScene();
 
 private:
-	HDC			m_hDC;		// device context
-	HGLRC		m_hRC;		// rendering context
-	HWND		m_hWnd;		// handle window
+	HDC			m_hDC;			// device context
+	HGLRC		m_hRC;			// rendering context
+	HWND		m_hWnd;			// handle window
 	HINSTANCE	m_hInstance;	// application instance
 
 	GLuint		m_width;
@@ -32,6 +34,8 @@ private:
 	bool		m_keys[256];
 	bool		m_active;
 	bool		m_fullscreen;
+
+	DrawFunc_t	m_drawFunction;
 
 	static int	m_windowsCount;
 

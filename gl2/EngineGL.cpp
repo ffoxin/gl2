@@ -12,10 +12,11 @@ int EngineGL::m_windowsCount = 0;
 
 void MessageBoxError( const char * message, const char * title );
 
-EngineGL::EngineGL(const TCHAR * caption, int bits, bool fullscreen, GLsizei width, GLsizei height) :
+EngineGL::EngineGL(const TCHAR * caption, DrawFunc_t drawFunction, int bits, bool fullscreen, GLsizei width, GLsizei height) :
 	m_width( width ), 
 	m_height( height ), 
-	m_fullscreen( fullscreen )
+	m_fullscreen( fullscreen ), 
+	m_drawFunction( drawFunction )
 {
 	memset( m_keys, 0, sizeof( m_keys ) / sizeof( *m_keys ) );
 
@@ -112,37 +113,37 @@ EngineGL::EngineGL(const TCHAR * caption, int bits, bool fullscreen, GLsizei wid
 		};
 
 		m_hDC = GetDC( m_hWnd );
-		if ( !m_hDC )							// Did We Get A Device Context?
+		if ( !m_hDC )									// Did We Get A Device Context?
 		{
 			throw ExceptionCreateDeviceContext();
 		}
 
 		GLuint pixelFormat = ChoosePixelFormat( m_hDC, &pfd );
-		if ( !pixelFormat )	// Did Windows Find A Matching Pixel Format?
+		if ( !pixelFormat )								// Did Windows Find A Matching Pixel Format?
 		{
 			throw ExceptionChoosePixelFormat();
 		}
 
-		if( !SetPixelFormat( m_hDC, pixelFormat, &pfd ) )		// Are We Able To Set The Pixel Format?
+		if( !SetPixelFormat( m_hDC, pixelFormat, &pfd ) )	// Are We Able To Set The Pixel Format?
 		{
 			throw ExceptionSetPixelFormat();
 		}
 
 		m_hRC = wglCreateContext( m_hDC );
-		if ( !m_hRC )				// Are We Able To Get A Rendering Context?
+		if ( !m_hRC )									// Are We Able To Get A Rendering Context?
 		{
 			throw ExceptionCreateRenderingContext();
 		}
 
-		if( !wglMakeCurrent( m_hDC, m_hRC ) )					// Try To Activate The Rendering Context
+		if( !wglMakeCurrent( m_hDC, m_hRC ) )			// Try To Activate The Rendering Context
 		{
 			throw ExceptionActivateRenderingContext();
 		}
 
-		ShowWindow( m_hWnd, SW_SHOW );						// Show The Window
-		SetForegroundWindow( m_hWnd );						// Slightly Higher Priority
-		SetFocus( m_hWnd );									// Sets Keyboard Focus To The Window
-		SetWindowSize( m_width, m_height );					// Set Up Our Perspective GL Screen
+		ShowWindow( m_hWnd, SW_SHOW );					// Show The Window
+		SetForegroundWindow( m_hWnd );					// Slightly Higher Priority
+		SetFocus( m_hWnd );								// Sets Keyboard Focus To The Window
+		SetWindowSize( m_width, m_height );				// Set Up Our Perspective GL Screen
 
 		InitEngine();
 	}
@@ -204,6 +205,7 @@ GLvoid EngineGL::PreDrawScene()
 LRESULT CALLBACK EngineGL::WindowProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	EngineGL * engine = EngineController::GetEngine( hWnd );
+
 	if ( engine != 0 )
 	{
 		// handle windows message
@@ -279,7 +281,7 @@ GLvoid EngineGL::DestroyEngine()
 	if ( m_hRC )
 	{
 		// check if device and rendering context might be released
-		if ( !wglMakeCurrent( NULL, NULL ) )
+		if ( !wglMakeCurrent( m_hDC, m_hRC ) )
 		{
 			MessageBoxError( sReleaseContextsError, sShutdownError );
 		}
@@ -317,77 +319,7 @@ GLvoid EngineGL::PostDrawScene()
 
 GLvoid EngineGL::DrawScene()
 {
-	static GLfloat rtri;				// Angle For The Triangle
-	static GLfloat rquad;				// Angle For The Quad
-
-	glLoadIdentity();
-	glTranslatef( -1.5f, 0.0f, -6.0f );
-	glRotatef( rtri, 0.0f, 1.0f, 0.0f );
-	glBegin( GL_TRIANGLES );
-	glColor3f( 1.0f, 0.0f, 0.0f );
-	glVertex3f(  0.0f, 1.0f, 0.0f );
-	glColor3f( 0.0f, 1.0f, 0.0f );
-	glVertex3f( -1.0f, -1.0f, 1.0f );
-	glColor3f( 0.0f, 0.0f, 1.0f );
-	glVertex3f(  1.0f, -1.0f, 1.0f );
-	glColor3f( 1.0f, 0.0f, 0.0f );
-	glVertex3f(  0.0f, 1.0f, 0.0f );
-	glColor3f( 0.0f, 0.0f, 1.0f );
-	glVertex3f(  1.0f, -1.0f, 1.0f );
-	glColor3f( 0.0f, 1.0f, 0.0f );
-	glVertex3f(  1.0f, -1.0f, -1.0f );
-	glColor3f( 1.0f, 0.0f, 0.0f );
-	glVertex3f(  0.0f, 1.0f, 0.0f );
-	glColor3f( 0.0f, 1.0f, 0.0f );
-	glVertex3f(  1.0f, -1.0f, -1.0f );
-	glColor3f( 0.0f, 0.0f, 1.0f );
-	glVertex3f( -1.0f, -1.0f, -1.0f );
-	glColor3f( 1.0f, 0.0f, 0.0f );
-	glVertex3f(  0.0f, 1.0f, 0.0f );
-	glColor3f( 0.0f, 0.0f, 1.0f );
-	glVertex3f( -1.0f, -1.0f, -1.0f );
-	glColor3f( 0.0f, 1.0f, 0.0f );
-	glVertex3f( -1.0f, -1.0f, 1.0f );
-	glEnd();
-
-	glLoadIdentity();
-	glTranslatef( 1.5f, 0.0f, -7.0f );
-	glRotatef( rquad, 1.0f, 1.0f, 1.0f );
-	glBegin( GL_QUADS );
-	glColor3f( 0.0f, 1.0f, 0.0f );
-	glVertex3f(  1.0f, 1.0f, -1.0f );
-	glVertex3f( -1.0f, 1.0f, -1.0f );
-	glVertex3f( -1.0f, 1.0f, 1.0f );
-	glVertex3f(  1.0f, 1.0f, 1.0f );
-	glColor3f( 1.0f, 0.5f, 0.0f );
-	glVertex3f(  1.0f, -1.0f, 1.0f );
-	glVertex3f( -1.0f, -1.0f, 1.0f );
-	glVertex3f( -1.0f, -1.0f, -1.0f );
-	glVertex3f(  1.0f, -1.0f, -1.0f );
-	glColor3f( 1.0f, 0.0f, 0.0f );
-	glVertex3f(  1.0f, 1.0f, 1.0f );
-	glVertex3f( -1.0f, 1.0f, 1.0f );
-	glVertex3f( -1.0f, -1.0f, 1.0f );
-	glVertex3f(  1.0f, -1.0f, 1.0f );
-	glColor3f( 1.0f, 1.0f, 0.0f );
-	glVertex3f(  1.0f, -1.0f, -1.0f );
-	glVertex3f( -1.0f, -1.0f, -1.0f );
-	glVertex3f( -1.0f, 1.0f, -1.0f );
-	glVertex3f(  1.0f, 1.0f, -1.0f );
-	glColor3f( 0.0f, 0.0f, 1.0f );
-	glVertex3f( -1.0f, 1.0f, 1.0f );
-	glVertex3f( -1.0f, 1.0f, -1.0f );
-	glVertex3f( -1.0f, -1.0f, -1.0f );
-	glVertex3f( -1.0f, -1.0f, 1.0f );
-	glColor3f( 1.0f, 0.0f, 1.0f );
-	glVertex3f(  1.0f, 1.0f, -1.0f );
-	glVertex3f(  1.0f, 1.0f, 1.0f );
-	glVertex3f(  1.0f, -1.0f, 1.0f );
-	glVertex3f(  1.0f, -1.0f, -1.0f );
-	glEnd();
-
-	rtri += 0.2f;
-	rquad -= 0.15f;
+	m_drawFunction();
 }
 
 bool EngineGL::IsActive()
@@ -444,7 +376,11 @@ bool EngineGL::UnregisterWindowsClass()
 		MessageBoxError( sUnregisterWindowClassError, sShutdownError );
 		m_windowsCount++;
 		m_hInstance = NULL;
+
+		return false;
 	}
+
+	return true;
 }
 
 void MessageBoxError( const char * message, const char * title )

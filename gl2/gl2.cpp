@@ -4,11 +4,12 @@
 #include <tchar.h>
 #include <vector>
 
+#include "EngineController.h"
 #include "EngineGL.h"
 
 void DrawTriangle()
 {
-	static GLfloat rtri;				// Angle For The Triangle
+	static GLfloat rtri = 0.0;				// Angle For The Triangle
 
 	glLoadIdentity();
 	glTranslatef( -1.5f, 0.0f, -6.0f );
@@ -45,7 +46,7 @@ void DrawTriangle()
 
 void DrawCube()
 {
-	static GLfloat rquad;				// Angle For The Quad
+	static GLfloat rquad = 0.0;				// Angle For The Quad
 
 	glLoadIdentity();
 	glTranslatef( 1.5f, 0.0f, -7.0f );
@@ -98,17 +99,12 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 {
 	typedef std::vector<EngineGL *> EngineVector_t;
 	EngineVector_t vec;
-	vec.push_back( new EngineGL( TEXT( "WinGL2" ), 16, false, 800, 480 ) );
-
-	/*EngineGL * engineWheel = new EngineGL( 
-		TEXT( "WheelGL2" ), 
-		16, false, 
-		600, 600 );*/
+	vec.push_back( new EngineGL( TEXT( "WinGL2 Triangle" ), DrawTriangle, 16, false, 800, 480 ) );
 
 	MSG msg;
 	while ( true )
 	{
-		if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )	// Is There A Message Waiting?
+		if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 		{
 			if ( msg.message == WM_QUIT )
 			{
@@ -122,37 +118,35 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 		}
 		else
 		{
-			bool quit = false;
-			for ( EngineVector_t::iterator i( vec.begin() ); i != vec.end(); ++i )
-			{
-				quit |= ( *i )->GetKey( VK_ESCAPE );
-			}
-
-			if ( quit )
+			if ( vec.size() == 1 && vec.front()->GetKey( VK_ESCAPE ) )
 			{
 				break;
 			}
 			else
 			{
+				size_t nAddEngines = 0;
 				// update screen
-				if ( vec.front()->GetKey( VK_F1 ) )
+				for ( EngineVector_t::iterator i( vec.begin() ); i != vec.end(); ++i )
 				{
-					vec.front()->GetKey( VK_F1 ) = false;
-					vec.push_back( new EngineGL( TEXT( "WheelGL2" ), 16, false, 600, 600 ) );
+					EngineGL * engine = *i;
+					if ( engine->GetKey( VK_F1 ) )
+					{
+						engine->GetKey( VK_F1 ) = false;
+						nAddEngines++;
+					}
+				}
+
+				for ( size_t i = 0; i < nAddEngines; ++i )
+				{
+					vec.push_back( new EngineGL( TEXT( "WinGL2 Cube" ), DrawCube, 16, false, 600, 600 ) );
 				}
 
 				for ( EngineVector_t::iterator i( vec.begin() ); i != vec.end(); ++i )
 				{
-					( *i )->PreDrawScene();
-					if ( i == vec.begin() )
-					{
-						DrawTriangle();
-					}
-					else
-					{
-						DrawCube();
-					}
-					( *i )->PostDrawScene();
+					EngineGL * engine = *i;
+					engine->PreDrawScene();
+					engine->DrawScene();
+					engine->PostDrawScene();
 				}
 			}
 		}

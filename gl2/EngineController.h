@@ -8,9 +8,11 @@
 class EngineController
 {
 public:
-	static void AddEngine( HWND hWnd, EngineGL * engine );
-	static void RemoveEngine( HWND hWnd );
-	static EngineGL * GetEngine( HWND hWnd );
+	static EngineController * GetEC();
+
+	void AddEngine( HWND hWnd, EngineGL * engine );
+	void RemoveEngine( HWND hWnd );
+	EngineGL * GetEngine( HWND hWnd );
 
 private:
 	typedef std::map<HWND, EngineGL *> EngineMap_t;
@@ -20,8 +22,6 @@ private:
 
 	EngineController();
 	~EngineController();
-
-	static EngineController * GetEC();
 
 	EngineController( const EngineController & engineControlller );
 	EngineController & operator=(const EngineController & EngineController );
